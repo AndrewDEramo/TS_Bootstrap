@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[244]:
-
-
-import pandas as pd
-
-rpm = pd.read_csv("C:/Users/deram/Downloads/RPM.csv",
-                 index_col="DATE")
-rpm.index = pd.to_datetime(rpm.index)
-
-
-# In[517]:
-
 
 from statsmodels.tsa.seasonal import STL
 from scipy.stats import boxcox
@@ -22,8 +10,6 @@ import itertools
 import numpy as np
 from scipy.special import inv_boxcox
 
-
-# In[579]:
 
 
 def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
@@ -91,94 +77,11 @@ def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
     return outputDF
 
 
-# In[573]:
 
-
-rpm["RPM"]
-
-
-# In[583]:
 
 
 sims = ts_simulator(df=rpm, ts_column="RPM")
 
-
-# In[589]:
-
-
 for c in range(len(sims.columns)):
     plt.plot(sims.iloc[:,c]);
 plt.title("Bootstraped Time Series, Revenue Passenger Miles\n")
-
-
-# In[518]:
-
-
-bc_transform = boxcox(rpm["RPM"])
-lam = bc_transform[1]
-bc_df = pd.DataFrame(bc_transform[0],
-                     index=rpm.index,
-                     columns=["BC_TRANSFORMED"])
-decomp = STL(bc_df["BC_TRANSFORMED"],
-             period=12,
-             robust=False).fit()
-
-#decomp.resid
-
-
-# In[549]:
-
-
-#resid_df = pd.DataFrame(decomp.resid)
-
-e=[ele for ele in list(range(int(len(decomp.resid)/24))) for i in range(24)]
-if len(e) > len(decomp.resid):
-    e = e[:len(decomp.resid)]
-else:
-    e = e + list(itertools.repeat(e[-1], (len(decomp.resid) - len(e))))
-
-resid = pd.DataFrame({"refVal": e,
-                      "resid": decomp.resid})
-resid["Date"] = resid.index
-resid.set_index("refVal", inplace=True)
-
-
-# In[538]:
-
-
-sampled = np.random.choice(resid.index.unique(), 
-                           size=resid.index.unique().size, 
-                           replace=False)
-resid = resid.loc[sampled]
-resid["refVal"] = resid.index
-resid = resid.reset_index(drop=True)
-
-
-# In[539]:
-
-
-newDF = pd.DataFrame({"ST": decomp.trend + decomp.seasonal})
-newDF["Date"] = newDF.index
-newDF = newDF.reset_index(drop=True)
-
-
-# In[540]:
-
-
-newDF = pd.concat([newDF, resid], axis=1)
-newDF["RPM"] = inv_boxcox(newDF["ST"]+newDF["resid"], lam)
-newDF = newDF.set_index("Date")
-
-
-# In[535]:
-
-
-o=pd.DataFrame(newDF.RPM)
-
-
-# In[545]:
-
-
-plt.plot(o)
-plt.plot(pd.DataFrame(newDF.RPM))
-
