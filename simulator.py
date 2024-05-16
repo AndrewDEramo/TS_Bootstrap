@@ -67,11 +67,15 @@ def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
         newDF = pd.DataFrame({"ST": decomp.trend + decomp.seasonal})
         newDF["Date"] = newDF.index
         newDF = newDF.reset_index(drop=True) # Necessary to join with the randomized residuals
-    
+
+        # Join the S&T dataframe with the residuals
         newDF = pd.concat([newDF, resid], axis=1)
+        
+        # Perform an inverse Box-Cox Transformation on the simulated values with the stored lambda value
         newDF[ts_column] = inv_boxcox(newDF["ST"]+newDF["resid"], lam)
         newDF = newDF.set_index("Date")
-    
+
+        # Store as a new column in the Output Dataframe
         outputDF = pd.concat([outputDF, newDF[ts_column]], axis=1)
     
     return outputDF
