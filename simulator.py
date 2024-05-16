@@ -22,7 +22,7 @@ def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
     
     outputDF = pd.DataFrame(index=df.index)
     
-    for i in range(simulations):
+    for s in range(simulations):
     
         # Perform Box-Cox Transformation
         bc_transform = boxcox(df[ts_column])
@@ -78,6 +78,12 @@ def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
 
 
 
+
+import pandas as pd
+
+rpm = pd.read_csv("C:/Users/deram/Downloads/RPM.csv",
+                 index_col="DATE")
+rpm.index = pd.to_datetime(rpm.index)
 
 
 sims = ts_simulator(df=rpm, ts_column="RPM")
