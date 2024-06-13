@@ -85,8 +85,8 @@ def ts_simulator(df, ts_column, simulations=20, periodicity='monthly'):
 
 import pandas as pd
 
-pd.read_csv("https://raw.githubusercontent.com/AndrewDEramo/Time-Series-Experiments/main/RPM.csv",
-            index_col='DATE')
+rpm = pd.read_csv("https://raw.githubusercontent.com/AndrewDEramo/Time-Series-Experiments/main/RPM.csv",
+                  index_col='DATE')
 rpm.index = pd.to_datetime(rpm.index)
 
 
